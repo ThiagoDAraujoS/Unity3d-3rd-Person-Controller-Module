@@ -6,14 +6,18 @@ public class BaseMovement : MonoBehaviour
 {
     [SerializeField][Range(0f,10f)]
     protected float moveSpeed, rotateSpeed, jumpForce;
+
     [SerializeField][Range(0f,90f)]
     protected float climbAngleLimit;
 
     [SerializeField]
     protected AnimationCurve rotationAccelerationCurve, movementAccelerationCurve;
-    [SerializeField]
+
+    [HideInInspector]
+
     public Rigidbody rb;
     private bool isGrounded = false;
+
     //[HideInInspector]
     public float feetHeight= -0.5f;
     public bool IsGrouded {
@@ -28,12 +32,14 @@ public class BaseMovement : MonoBehaviour
         }
     }
     void Start(){
-        climbAngleLimit/=90f;
+        climbAngleLimit= 1f-(climbAngleLimit/90f);
         StartCoroutine(UpdateIsGroundedFlag());
+        rb = GetComponentInChildren<Rigidbody>();
     }
     public virtual void Walk(Vector2 direction){
-        rb.AddTorque(transform.up * rotateSpeed * rotationAccelerationCurve.Evaluate(direction.y) * direction.x, ForceMode.VelocityChange);
-        rb.AddForce(transform.forward * moveSpeed * movementAccelerationCurve.Evaluate(direction.x), ForceMode.Acceleration);
+        rb.AddTorque(transform.up * rotateSpeed * rotationAccelerationCurve.Evaluate(direction.x) * direction.y, ForceMode.VelocityChange);
+        rb.AddForce(transform.forward * moveSpeed * movementAccelerationCurve.Evaluate(direction.y), ForceMode.Acceleration);
+        Debug.Log("Im Adding Force");
     }
 
     private bool tempIsGrounded = false;
