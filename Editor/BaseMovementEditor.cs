@@ -5,15 +5,6 @@ using UnityEditor;
 [CustomEditor(typeof (BaseMovement))]
 public class BaseMovementEditor : Editor
 {
-    // Start is called before the first frame update
-    void Start() {
-        
-    }
-
-    // Update is called once per frame
-    void Update() {
-        
-    }
     void OnSceneGUI(){
         BaseMovement o = target as BaseMovement;
 

@@ -1,22 +1,26 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.InputSystem;
 public class BaseMovement : MonoBehaviour
 {
-    [SerializeField][Range(0f,10f)]
+    [SerializeField]//[Range(0f,10f)]
     protected float moveSpeed, rotateSpeed, jumpForce;
+
+    [SerializeField]
+    protected AnimationCurve ForwardAccelerationCurve, RotationAccelerationCurve;
+
+    protected float xAxis, yAxis;
 
     [SerializeField][Range(0f,90f)]
     protected float climbAngleLimit;
 
-    [SerializeField]
-    protected AnimationCurve rotationAccelerationCurve, movementAccelerationCurve;
-
     [HideInInspector]
-
     public Rigidbody rb;
+
     private bool isGrounded = false;
+
+    private PlayerControls controls;
 
     //[HideInInspector]
     public float feetHeight= -0.5f;
@@ -31,15 +35,41 @@ public class BaseMovement : MonoBehaviour
             rb.velocity = newVelocity;
         }
     }
-    void Start(){
-        climbAngleLimit= 1f-(climbAngleLimit/90f);
-        StartCoroutine(UpdateIsGroundedFlag());
+
+    void Awake(){
+
+        climbAngleLimit = 1f-(climbAngleLimit/90f);
+
         rb = GetComponentInChildren<Rigidbody>();
+
+        StartCoroutine(UpdateIsGroundedFlag());
+
+        InitializeControl();
     }
-    public virtual void Walk(Vector2 direction){
-        rb.AddTorque(transform.up * rotateSpeed * rotationAccelerationCurve.Evaluate(direction.x) * direction.y, ForceMode.VelocityChange);
-        rb.AddForce(transform.forward * moveSpeed * movementAccelerationCurve.Evaluate(direction.y), ForceMode.Acceleration);
-        Debug.Log("Im Adding Force");
+
+    private void InitializeControl(){
+        controls = new PlayerControls();
+        controls.Gameplay.Move.performed += ctx => {
+            yAxis = ctx.ReadValue<Vector2>().y;
+            xAxis = ctx.ReadValue<Vector2>().x;
+        };
+        controls.Gameplay.Move.canceled += ctx =>{
+            yAxis = 0.0f;
+            xAxis = 0.0f;
+        };
+    }
+
+    void OnEnable(){
+        controls.Gameplay.Enable();
+    }
+    void OnDisable(){
+        controls.Gameplay.Disable();
+    }
+
+    void FixedUpdate(){
+        rb.AddTorque(rb.transform.up * (((xAxis>0)?1f:-1f) *RotationAccelerationCurve.Evaluate(Mathf.Abs(xAxis))) * rotateSpeed, ForceMode.VelocityChange);
+        rb.AddForce(rb.transform.forward * (((yAxis>0)?1f:-1f) *ForwardAccelerationCurve.Evaluate(Mathf.Abs(yAxis))) * moveSpeed, ForceMode.Acceleration);
+
     }
 
     private bool tempIsGrounded = false;
