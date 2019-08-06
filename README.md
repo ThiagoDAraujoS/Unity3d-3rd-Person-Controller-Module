@@ -24,7 +24,7 @@ Bound to the *North* vector's mechanic, there's an automatic smoothing system be
 _This design choice allows the controls to be more or less fluid depending on the game's identity._
 
 #### - Input Pressure Curves and Sensitivity
-The system also exposes a curve that remaps how the movement's axis pressure works, 
+The system also exposes a curve that remaps how the control stick axis pressure works, 
 _This allows for a finer tuning of the controls, since a game designer can tune how the game responds to the controls in a more specialized way than just setting a specific value for sensitivity._
 
 #### - Grounding Check
